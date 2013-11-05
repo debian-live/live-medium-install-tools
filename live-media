@@ -1,0 +1,120 @@
+#!/bin/sh
+
+########################################################################################
+# live-media
+# Script to install and boot iso files from HD.
+#
+
+set -e
+
+# Clear the screen
+clear
+
+# Set a version number.
+VERSION="20131105-0"
+
+# Set the image information.
+DEBIAN_VERSION='Debian 7.2 gnome-destop+nonfree'
+DEBIAN_ISO='debian-live-7.2-amd64-gnome-desktop+nonfree.iso'
+
+# Set the defualt server.
+DEFAULT_SERVERIP='SET_YOUR_SERVERIP_DEFAULT'
+
+# Set the defualt block device (BE CAREFUL).
+DEFAULT_DEVICE='/dev/sd?'
+
+# Set the ip or name of the image server.
+echo "************** ATTENTION DATA WARNING *************"
+echo "* This script erases data on target devices."
+echo "* live-media installer script version is ${VERSION}"
+echo "***************************************************"
+echo
+echo "Please enter the server ip address to pull images from: (defalut is ${DEFAULT_SERVERIP})"
+read SERVERIP
+#SERVERIP=${SERVERIP:-${DEFAULT_SERVERIP}}
+SERVERIP=${SERVERIP:-${DEFAULT_SERVERIP}}
+
+# Run blkid to see what block devices are available.
+echo "Below is the output of blkid."
+blkid
+
+echo
+echo "Please enter a block device of something like: (default is ${DEFAULT_DEVICE})"
+read DEVICE
+DEVICE=${DEVICE:-${DEFAULT_DEVICE}}
+echo
+echo "WARNING - All data on ${DEVICE} will be lost forever! - WARNING"
+echo "Type    YES   (all caps) to continue:"
+read OK2CONTINUE
+
+if [ "${OK2CONTINUE}" = "YES" ]
+then
+	echo "You requested to continue access!"
+else
+	echo "You did not type YES so script stopping here!"
+	exit 0
+fi
+
+# Zero fill just a bit
+echo "Starting dd command for short zero fill..."
+dd if=/dev/zero of=${DEVICE} bs=1024 count=1024
+
+# Make a single partition
+echo "Starting parted command to make lablel and partition..."
+#parted -s -a optimal ${DEVICE} mklabel gpt -- mkpart primary ext4 1 -1
+#parted -s -a optimal ${DEVICE} mklabel msdos -- mkpart primary ext4 1 3000
+#parted -s -a optimal ${DEVICE} -- mkpart primary ext4 3000 -1
+parted -s -a optimal ${DEVICE} mklabel msdos -- mkpart primary ext4 1 -1
+
+# Set the block device to boot.
+echo "Starting parted command to enable boot..."
+parted -s ${DEVICE} --  set 1 boot on
+
+# Make new filesystem on the new partitions.
+echo "Making filesystem..."
+mkfs.ext4 -L Firmware ${DEVICE}1
+#mkfs.ext4 -L casper-rw ${DEVICE}2
+
+# Mount the target filesystem
+echo "Mounting file system to allow saving of iso download..."
+mount ${DEVICE}1 /mnt/
+
+
+# Install grub2 on target device
+echo "Installing grub on block device..."
+grub-install --no-floppy --root-directory=/mnt ${DEVICE}
+
+
+# Create the grub config file.
+echo "Creating grub boot grub.cfg file..."
+cat > /mnt/boot/grub/grub.cfg << EOF
+
+set timeout=1
+
+menuentry "${DEBIAN_VERSION}" {
+        loopback loop /boot/iso/${DEBIAN_ISO}
+        linux (loop)/live/vmlinuz boot=live config findiso=/boot/iso/${DEBIAN_ISO} splash noeject noprompt --
+        initrd (loop)/live/initrd.img
+}
+
+menuentry "Memtest86+" {
+        loopback loop /boot/iso/${DEBIAN_ISO}
+	linux16 (loop)/live/memtest
+}
+
+EOF
+
+# Create the directory to save iso file(s)
+echo "Creating iso dir..."
+mkdir /mnt/boot/iso
+
+# Download the iso images from server
+echo "Downloading iso file..."
+wget http://${SERVERIP}/iso/${DEBIAN_ISO} -O /mnt/boot/iso/${DEBIAN_ISO}
+
+# Sync and umount
+echo "Cleanup with sync and umount..."
+sync
+umount /mnt/
+
+echo "Please halt your machine and boot up to your live firmware."
