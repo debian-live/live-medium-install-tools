@@ -10,9 +10,6 @@
 
 set -e
 
-# Clear the screen
-clear
-
 # Set the image information.
 DEBIAN_VERSION='Debian 7.2 gnome-destop+nonfree'
 DEBIAN_ISO='debian-live-7.2-amd64-gnome-desktop+nonfree.iso'
