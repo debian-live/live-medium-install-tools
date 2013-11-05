@@ -46,13 +46,16 @@ echo "WARNING - All data on ${DEVICE} will be lost forever! - WARNING"
 echo "Type    YES   (all caps) to continue:"
 read OK2CONTINUE
 
-if [ "${OK2CONTINUE}" = "YES" ]
-then
-	echo "You requested to continue access!"
-else
-	echo "You did not type YES so script stopping here!"
-	exit 0
-fi
+case "${OK2CONTINUE}" in
+	YES)
+		echo "You requested to continue access!"
+		;;
+
+	*)
+		echo "You did not type YES so script stopping here!"
+		exit 0
+		;;
+esac
 
 # Zero fill just a bit
 echo "Starting dd command for short zero fill..."
