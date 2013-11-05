@@ -16,7 +16,7 @@ _URL="http://live.debian.net/files/stable/images/7.2/amd64/iso-hybrid/"
 _IMAGE_TITLE="Debian 7.2 GNOME Desktop"
 _IMAGE_FILE="debian-live-7.2-amd64-gnome-desktop.iso"
 
-_TARGET="/dev/sd?"
+_TARGET="/dev/sda"
 
 # Dependencies
 if [ ! -e /usr/sbin/grub-install ]
@@ -37,37 +37,65 @@ then
 	exit 1
 fi
 
-# Set the ip or name of the image server.
-echo "************** ATTENTION DATA WARNING *************"
-echo "* This script erases data on target devices."
-echo "***************************************************"
-echo
-echo "Please enter the server ip address to pull images from: (defalut is ${_URL})"
+# Display warning
+cat << EOF
+######################################################
+WARNING: This will erase all data on the target device
+######################################################
+
+Please enter URL to download the ${_IMAGE_FILE} image from
+(default: ${_URL})
+EOF
+
+# Ask for URL
+echo -n ": "
 read _READ
+
 _URL="${_READ:-${_URL}}"
 
-# Run blkid to see what block devices are available.
-echo "Below is the output of blkid."
-blkid
+# Display partitions
+cat << EOF
 
-echo
-echo "Please enter a block device of something like: (default is ${_TARGET})"
+-------------------------------------------------------------------------------
+$(blkid | sort)
+-------------------------------------------------------------------------------
+
+EOF
+
+# Ask for target device
+echo -n "Please enter block device to install system to (default: ${_TARGET}): "
 read _READ
+
 _TARGET="${_READ:-${_TARGET}}"
 
-echo
-echo "WARNING - All data on ${_TARGET} will be lost forever! - WARNING"
-echo "Type    YES   (all caps) to continue:"
-read _READ
+if [ ! -b "${_TARGET}" ]
+then
+	echo "E: ${_TARGET} not a block device, aborting."
+	exit 1
+fi
 
-case "${_READ}" in
-	YES)
-		echo "You requested to continue access!"
+cat << EOF
+
+#########################################################
+WARNING: This will erase all data on the ${_TARGET} device
+#########################################################
+
+You are about to do something potentially harmful.
+To continue type in the phrase 'Yes, do as I say!'
+EOF
+
+echo -n ": "
+read _CONTINUE
+
+case "${_CONTINUE}" in
+	'Yes, do as I say!')
+
 		;;
 
 	*)
-		echo "You did not type YES so script stopping here!"
-		exit 0
+		echo "Abort."
+
+		exit 1
 		;;
 esac
 
