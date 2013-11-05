@@ -20,6 +20,25 @@ DEFAULT_SERVERIP='SET_YOUR_SERVERIP_DEFAULT'
 # Set the defualt block device (BE CAREFUL).
 DEFAULT_DEVICE='/dev/sd?'
 
+# Dependencies
+if [ ! -e /usr/sbin/grub-install ]
+then
+	echo "E: /usr/sbin/grub-install - no such file"
+	echo "E: On Debian based systems, grub2-common can be installed with:"
+	echo "E:   apt-get install grub2-common"
+
+	exit 1
+fi
+
+if [ ! -e /sbin/parted ]
+then
+	echo "E: /sbin/parted - no such file"
+	echo "E: On Debian based systems, parted can be installed with:"
+	echo "E:   apt-get install parted"
+
+	exit 1
+fi
+
 # Set the ip or name of the image server.
 echo "************** ATTENTION DATA WARNING *************"
 echo "* This script erases data on target devices."
