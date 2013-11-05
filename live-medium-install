@@ -13,9 +13,6 @@ set -e
 # Clear the screen
 clear
 
-# Set a version number.
-VERSION="20131105-0"
-
 # Set the image information.
 DEBIAN_VERSION='Debian 7.2 gnome-destop+nonfree'
 DEBIAN_ISO='debian-live-7.2-amd64-gnome-desktop+nonfree.iso'
@@ -29,7 +26,6 @@ DEFAULT_DEVICE='/dev/sd?'
 # Set the ip or name of the image server.
 echo "************** ATTENTION DATA WARNING *************"
 echo "* This script erases data on target devices."
-echo "* live-media installer script version is ${VERSION}"
 echo "***************************************************"
 echo
 echo "Please enter the server ip address to pull images from: (defalut is ${DEFAULT_SERVERIP})"
