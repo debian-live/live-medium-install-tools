@@ -128,7 +128,7 @@ parted -s ${_TARGET} --  set 1 boot on
 # Make new filesystem on the new partitions.
 echo "Making filesystem..."
 mkfs.ext4 -L Firmware ${_TARGET}1
-#mkfs.ext4 -L casper-rw ${_TARGET}2
+#mkfs.ext4 -L persistence ${_TARGET}2
 
 # Mount the target filesystem
 echo "Mounting file system to allow saving of iso download..."
