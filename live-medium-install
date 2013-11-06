@@ -139,7 +139,7 @@ mkdir -p /mnt/live
 
 # Download the iso images from server
 echo "Downloading iso file..."
-for _FILE in _FILES
+for _FILE in ${_FILES}
 do
 	wget -c http://${_URL}/${_FILE} -O /mnt/live/${_FILE}
 done
