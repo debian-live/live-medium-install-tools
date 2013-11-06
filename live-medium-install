@@ -176,7 +176,7 @@ extlinux --install /mnt/boot
 
 # Sync and umount
 echo "Cleanup with sync and umount..."
-sync
 umount /mnt
+sync
 
 echo "Please halt your machine and boot up to your live firmware."
