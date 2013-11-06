@@ -130,15 +130,15 @@ mkfs.ext4 -L Firmware ${_TARGET}1
 #mkfs.ext4 -L persistence ${_TARGET}2
 
 # Mount the target filesystem
-echo "Mounting file system to allow saving of iso download..."
+echo "Mounting file system to allow saving of webboot files..."
 mount ${_TARGET}1 /mnt
 
-# Create the directory to save iso file(s)
-echo "Creating iso dir..."
+# Create the directory to save webboot files
+echo "Creating /live dir..."
 mkdir -p /mnt/live
 
-# Download the iso images from server
-echo "Downloading iso file..."
+# Download the webboot files from server
+echo "Downloading webboot files..."
 for _FILE in ${_FILES}
 do
 	wget -c http://${_URL}/${_FILE} -O /mnt/live/${_FILE}
