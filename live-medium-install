@@ -15,7 +15,6 @@ _VERSION="7.2"
 
 _URL="http://live.debian.net/files/stable/images/${_VERSION}/amd64/web/"
 
-_TITLE="Debian ${_VERSION} GNOME Desktop"
 _FILES="debian-live-${_VERSION}-amd64-gnome-desktop.vmlinuz debian-live-${_VERSION}-amd64-gnome-desktop.initrd.img debian-live-${_VERSION}-amd64-gnome-desktop.squashfs"
 
 _TARGET="/dev/sda"
@@ -168,7 +167,13 @@ label live
 	menu default
 	linux /live/vmlinuz
 	initrd /live/initrd.img
-	append boot=live config -- vga=normal video=vesa quiet splash
+	append boot=live config vga=normal video=vesa quiet splash
+
+label live-failsafe
+	menu label Live (failsafe)
+	linux /live/vmlinuz
+	initrd /live/initrd.img
+	append boot=live config memtest noapic noapm nodma nomce nolapic nomodeset nosmp nosplash vga=normal
 EOF
 
 # Writing bootloader
