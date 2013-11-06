@@ -21,20 +21,20 @@ _FILES="debian-live-${_VERSION}-amd64-gnome-desktop.vmlinuz debian-live-${_VERSI
 _TARGET="/dev/sda"
 
 # Dependencies
-if [ ! -e /usr/sbin/grub-install ]
-then
-	echo "E: /usr/sbin/grub-install - no such file"
-	echo "E: On Debian based systems, grub2-common can be installed with:"
-	echo "E:   apt-get install grub2-common"
-
-	exit 1
-fi
-
 if [ ! -e /sbin/parted ]
 then
 	echo "E: /sbin/parted - no such file"
 	echo "E: On Debian based systems, parted can be installed with:"
 	echo "E:   apt-get install parted"
+
+	exit 1
+fi
+
+if [ ! -e /usr/bin/extlinux ]
+then
+	echo "E: /usr/bin/extlinux - no such file"
+	echo "E: On Debian based systems, extlinux can be installed with:"
+	echo "E:   apt-get install extlinux"
 
 	exit 1
 fi
@@ -134,29 +134,6 @@ mkfs.ext4 -L Firmware ${_TARGET}1
 echo "Mounting file system to allow saving of iso download..."
 mount ${_TARGET}1 /mnt
 
-# Install grub2 on target device
-echo "Installing grub on block device..."
-grub-install --no-floppy --root-directory=/mnt ${_TARGET}
-
-# Create the grub config file.
-echo "Creating grub boot grub.cfg file..."
-cat > /mnt/boot/grub/grub.cfg << EOF
-
-set timeout=1
-
-menuentry "${_IMAGE_TITLE}" {
-	loopback loop /boot/iso/${_IMAGE_FILE}
-	linux (loop)/live/vmlinuz boot=live config findiso=/boot/iso/${_IMAGE_FILE} splash noeject noprompt --
-	initrd (loop)/live/initrd.img
-}
-
-menuentry "Memtest86+" {
-	loopback loop /boot/iso/${_IMAGE_FILE}
-	linux16 (loop)/live/memtest
-}
-
-EOF
-
 # Create the directory to save iso file(s)
 echo "Creating iso dir..."
 mkdir -p /mnt/live
@@ -172,6 +149,30 @@ done
 mv /mnt/live/debian-live-*.vmlinuz /mnt/live/vmlinuz
 mv /mnt/live/debian-live-*.initrd.img /mnt/live/initrd.img
 mv /mnt/live/debian-live-*.squashfs /mnt/live/filesystem.squashfs
+
+# Writing mbr
+# FIXME: needs update for syslinux 6.0
+dd if=/usr/lib/extlinux/mbr.bin of="${_TARGET}" bs=440 count=1 conv=notrunc
+
+# Configuring bootloader
+mkdir -p /mnt/boot/extlinux
+
+cat > /mnt/boot/extlinux/extlinux.cfg << EOF
+prompt 0
+timeout 50
+
+default live
+
+label live
+	menu label ^Live
+	menu default
+	linux /live/vmlinuz
+	initrd /live/initrd.img
+	append boot=live config -- vga=normal video=vesa quiet splash
+EOF
+
+# Writing bootloader
+extlinux --install /mnt/boot
 
 # Sync and umount
 echo "Cleanup with sync and umount..."
