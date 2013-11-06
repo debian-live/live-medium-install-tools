@@ -39,6 +39,15 @@ then
 	exit 1
 fi
 
+if [ ! -e /usr/bin/wget ]
+then
+	echo "E: /usr/bin/wget - no such file"
+	echo "E: On Debian based systems, wget can be installed with:"
+	echo "E:   apt-get install wget"
+
+	exit 1
+fi
+
 # Display warning
 cat << EOF
 ######################################################
