@@ -156,7 +156,7 @@ dd if=/usr/lib/extlinux/mbr.bin of="${_TARGET}" bs=440 count=1 conv=notrunc
 # Configuring bootloader
 mkdir -p /mnt/boot/extlinux
 
-cat > /mnt/boot/extlinux/extlinux.cfg << EOF
+cat > /mnt/boot/extlinux/extlinux.conf << EOF
 prompt 0
 timeout 50
 
