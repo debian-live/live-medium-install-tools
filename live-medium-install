@@ -177,7 +177,7 @@ label live-failsafe
 EOF
 
 # Writing bootloader
-extlinux --install /mnt/boot
+extlinux --install /mnt/boot/extlinux
 
 # Sync and umount
 echo "Cleanup with sync and umount..."
