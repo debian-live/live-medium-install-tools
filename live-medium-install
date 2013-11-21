@@ -47,6 +47,15 @@ then
 	exit 1
 fi
 
+if [ ! -e /usr/lib/syslinux/vesamenu.c32 ]
+then
+	echo "E: /usr/lib/syslinux/vesamenu.c32 - no such file"
+	echo "E: On Debian based systems, vesamenu.c32 can be installed with:"
+	echo "E:   apt-get install syslinux-common"
+
+	exit 1
+fi
+
 # Display warning
 cat << EOF
 ######################################################
