@@ -65,6 +65,15 @@ then
 	exit 1
 fi
 
+if [ ! -e /boot/memtest86+.bin ]
+then
+	echo "E: /boot/memtest86+.bin - no such file"
+	echo "E: On Debian based systems, memtest86+ can be installed with:"
+	echo "E:   apt-get install memtest86+"
+
+	exit 1
+fi
+
 # Display warning
 cat << EOF
 ######################################################
@@ -176,6 +185,7 @@ mkdir -p /mnt/boot/extlinux
 
 cp /usr/lib/syslinux/vesamenu.c32 /mnt/boot/extlinux/
 cp /usr/share/syslinux/themes/debian/extlinux/splash.png /mnt/boot/extlinux/
+cp /boot/memtest86+.bin /mnt/boot/
 
 cat > /mnt/boot/extlinux/extlinux.conf << EOF
 default live
@@ -212,6 +222,10 @@ label live-failsafe
 	linux /live/vmlinuz
 	initrd /live/initrd.img
 	append boot=live config memtest noapic noapm nodma nomce nolapic nomodeset nosmp nosplash vga=normal
+
+label memtest
+	menu label Memory Diagnostic Tool (memtest86+)
+	linux /boot/memtest86+.bin
 EOF
 
 # Writing bootloader
