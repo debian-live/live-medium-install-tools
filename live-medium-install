@@ -18,6 +18,8 @@ _URL="http://live.debian.net/files/stable/images/${_VERSION}/amd64/webboot/"
 # Select the default live image config type.
 _CONFIGTYPE="gnome-desktop"
 
+_NONFREE="No, do not include non-free."
+
 _TARGET="/dev/sda"
 
 # Dependencies
@@ -79,6 +81,8 @@ cat << EOF
 ######################################################
 		live-medium-install
 ######################################################
+
+######################################################
 Please enter the image config type to download.
 (default: ${_CONFIGTYPE})
 
@@ -97,8 +101,39 @@ read _READ
 
 _CONFIGTYPE=${_READ:-${_CONFIGTYPE}}
 
+cat << EOF
+
+######################################################
+Do you want to use images which include the non-free
+arvhive areas? Please enter 'Yes, include non-free.'
+(default: ${_NONFREE})
+
+EOF
+
+# Ask for _NONFREE
+echo -n ": "
+read _READ
+
+_NONFREE=${_READ:-${_NONFREE}}
+
+# Configure _URL and _CONFIGTYPE to include non-free
+case "${_NONFREE}" in
+	'Yes, include non-free.')
+		_URL=$(echo ${_URL} | sed s@${_VERSION}@${_VERSION}+nonfree@)
+		_CONFIGTYPE="${_CONFIGTYPE}+nonfree"
+		;;
+
+	'No, do not include non-free.')
+		;;
+
+	*)
+		echo "Invalid non-free selection of ${_NONFREE} , abort."
+		exit 1
+		;;
+esac
+
 case "${_CONFIGTYPE}" in
-	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue)
+	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
 		_FILES="debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.vmlinuz debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.initrd.img debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.squashfs"
 		;;
 
