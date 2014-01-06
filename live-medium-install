@@ -15,7 +15,8 @@ _VERSION="7.2"
 
 _URL="http://live.debian.net/files/stable/images/${_VERSION}/amd64/webboot/"
 
-_FILES="debian-live-${_VERSION}-amd64-gnome-desktop.vmlinuz debian-live-${_VERSION}-amd64-gnome-desktop.initrd.img debian-live-${_VERSION}-amd64-gnome-desktop.squashfs"
+# Select the default live image config type.
+_CONFIGTYPE="gnome-desktop"
 
 _TARGET="/dev/sda"
 
@@ -74,13 +75,47 @@ then
 	exit 1
 fi
 
+cat << EOF
+######################################################
+		live-medium-install
+######################################################
+Please enter the image config type to download.
+(default: ${_CONFIGTYPE})
+
+ gnome-desktop
+ kde-desktop
+ lxde-desktop
+ xfce-desktop
+ standard
+ rescue
+
+EOF
+
+# Ask for _CONFIGTYPE
+echo -n ": "
+read _READ
+
+_CONFIGTYPE=${_READ:-${_CONFIGTYPE}}
+
+case "${_CONFIGTYPE}" in
+	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue)
+		_FILES="debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.vmlinuz debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.initrd.img debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.squashfs"
+		;;
+
+	*)
+		echo "Invalid config type. Abort."
+		exit 1
+		;;
+esac
+
+
 # Display warning
 cat << EOF
 ######################################################
 WARNING: This will erase all data on the target device
 ######################################################
 
-Please enter URL to download the ${_IMAGE_FILE} image from
+Please enter URL to download the ${_FILES} from
 (default: ${_URL})
 EOF
 
