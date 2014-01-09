@@ -211,7 +211,7 @@ echo "Starting dd command for short zero fill..."
 dd if=/dev/zero of=${_TARGET} bs=1024 count=1024
 
 # Make a single partition
-echo "Starting parted command to make lablel and partition..."
+echo "Starting parted command to make label and partition..."
 #parted -s -a optimal ${_TARGET} mklabel gpt -- mkpart primary ext4 1 -1
 #parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 3000
 #parted -s -a optimal ${_TARGET} -- mkpart primary ext4 3000 -1
