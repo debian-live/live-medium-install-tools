@@ -13,6 +13,8 @@ set -e
 # Defaults
 _VERSION="7.2"
 
+_ARCH="amd64"
+
 _URL="http://live.debian.net/files/stable/images/${_VERSION}/amd64/webboot/"
 
 # Select the default live image config type.
@@ -104,6 +106,38 @@ _CONFIGTYPE=${_READ:-${_CONFIGTYPE}}
 cat << EOF
 
 ######################################################
+Please enter the architecture you would like to install?
+(default: ${_ARCH})
+
+ amd64
+ i386
+
+EOF
+
+# Ask for _ARCH
+echo -n ": "
+read _READ
+
+_ARCH=${_READ:-${_ARCH}}
+
+# Configure the _URL architecture
+case "${_ARCH}" in
+	'amd64')
+		;;
+
+	'i386')
+		_URL=$(echo ${_URL} | sed s@amd64@i386@)
+		;;
+
+	*)
+		echo "Invalid architecture selection of ${_ARCH}, aborting."
+		exit 1
+		;;
+esac
+
+cat << EOF
+
+######################################################
 Do you want to use images which include the non-free
 arvhive areas? Please enter 'Yes, include non-free.'
 (default: ${_NONFREE})
@@ -134,7 +168,7 @@ esac
 
 case "${_CONFIGTYPE}" in
 	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-		_FILES="debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.vmlinuz debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.initrd.img debian-live-${_VERSION}-amd64-${_CONFIGTYPE}.squashfs"
+		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.vmlinuz debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.initrd.img debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.squashfs"
 		;;
 
 	*)
