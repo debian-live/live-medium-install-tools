@@ -13,7 +13,7 @@ set -e
 # Defaults
 _VERSION="7.2"
 
-_URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot/"
+_URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot"
 
 # Select the default live image config type.
 _CONFIGTYPE="gnome-desktop"
