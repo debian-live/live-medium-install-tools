@@ -20,6 +20,9 @@ _CONFIGTYPE="gnome-desktop"
 
 _ARCH="amd64"
 
+#_FLAVOUR - 1 for 486 and 2 for 686
+_FLAVOUR=""
+
 _NONFREE="No, do not include non-free."
 
 _TARGET="/dev/sda"
@@ -110,7 +113,8 @@ Please enter the architecture you would like to install?
 (default: ${_ARCH})
 
  amd64
- i386
+ i386-486
+ i386-686
 
 EOF
 
@@ -120,14 +124,20 @@ read _READ
 
 _ARCH=${_READ:-${_ARCH}}
 
-# Configure the _URL architecture
+# Configure the _URL architecture and se _FLAVOUR
 case "${_ARCH}" in
 	'amd64')
 		_URL=$(echo ${_URL} | sed s@ARCH@amd64@)
 		;;
 
-	'i386')
+	'i386-486')
 		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+		_FLAVOUR="1"
+		;;
+
+	'i386-686')
+		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+		_FLAVOUR="2"
 		;;
 
 	*)
@@ -169,7 +179,7 @@ esac
 
 case "${_CONFIGTYPE}" in
 	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.vmlinuz debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.initrd.img debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.squashfs"
+		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.vmlinuz${_FLAVOUR} debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.initrd${_FLAVOUR}.img debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.squashfs"
 		;;
 
 	*)
@@ -277,8 +287,8 @@ do
 done
 
 # Renaming files
-mv /mnt/live/debian-live-*.vmlinuz /mnt/live/vmlinuz
-mv /mnt/live/debian-live-*.initrd.img /mnt/live/initrd.img
+mv /mnt/live/debian-live-*.vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
+mv /mnt/live/debian-live-*.initrd${_FLAVOUR}.img /mnt/live/initrd.img
 mv /mnt/live/debian-live-*.squashfs /mnt/live/filesystem.squashfs
 
 # Writing mbr
