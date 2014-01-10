@@ -13,12 +13,12 @@ set -e
 # Defaults
 _VERSION="7.2"
 
-_ARCH="amd64"
-
-_URL="http://live.debian.net/files/stable/images/${_VERSION}/amd64/webboot/"
+_URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot/"
 
 # Select the default live image config type.
 _CONFIGTYPE="gnome-desktop"
+
+_ARCH="amd64"
 
 _NONFREE="No, do not include non-free."
 
@@ -123,10 +123,11 @@ _ARCH=${_READ:-${_ARCH}}
 # Configure the _URL architecture
 case "${_ARCH}" in
 	'amd64')
+		_URL=$(echo ${_URL} | sed s@ARCH@amd64@)
 		;;
 
 	'i386')
-		_URL=$(echo ${_URL} | sed s@amd64@i386@)
+		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
 		;;
 
 	*)
