@@ -127,7 +127,7 @@ case "${_NONFREE}" in
 		;;
 
 	*)
-		echo "Invalid non-free selection of ${_NONFREE} , abort."
+		echo "Invalid non-free selection of ${_NONFREE}, aborting."
 		exit 1
 		;;
 esac
@@ -138,7 +138,7 @@ case "${_CONFIGTYPE}" in
 		;;
 
 	*)
-		echo "Invalid config type. Abort."
+		echo "Invalid config type selection of ${_CONFIGTYPE}, aborting."
 		exit 1
 		;;
 esac
