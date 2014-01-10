@@ -118,12 +118,12 @@ _NONFREE=${_READ:-${_NONFREE}}
 
 # Configure _URL and _CONFIGTYPE to include non-free
 case "${_NONFREE}" in
+	'No, do not include non-free.')
+		;;
+
 	'Yes, include non-free.')
 		_URL=$(echo ${_URL} | sed s@${_VERSION}@${_VERSION}+nonfree@)
 		_CONFIGTYPE="${_CONFIGTYPE}+nonfree"
-		;;
-
-	'No, do not include non-free.')
 		;;
 
 	*)
