@@ -124,7 +124,7 @@ read _READ
 
 _ARCH=${_READ:-${_ARCH}}
 
-# Configure the _URL architecture and se _FLAVOUR
+# Configure the _URL architecture and set _FLAVOUR on i386
 case "${_ARCH}" in
 	'amd64')
 		_URL=$(echo ${_URL} | sed s@ARCH@amd64@)
