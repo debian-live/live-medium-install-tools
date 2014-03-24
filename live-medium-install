@@ -262,6 +262,11 @@ echo "Starting parted command to make label and partition..."
 #parted -s -a optimal ${_TARGET} -- mkpart primary ext4 3000 -1
 parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 -1
 
+# Example of 10gb and swap.
+#parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 10000
+#parted -s -a optimal ${_TARGET} -- mkpart primary linux-swap 10000 12000
+
+
 # Set the block device to boot.
 echo "Starting parted command to enable boot..."
 parted -s ${_TARGET} --  set 1 boot on
