@@ -314,13 +314,21 @@ timeout 50
 
 default vesamenu.c32
 menu background splash.png
+menu title Debian Linux Firmware Version ${_VERSION}
+menu separator
+menu separator
+menu separator
+menu separator
+menu separator
+menu separator
+menu separator
 menu color title	* #FFFFFFFF *
 menu color border	* #00000000 #00000000 none
 menu color sel		* #ffffffff #76a1d0ff *
 menu color hotsel	1;7;37;40 #ffffffff #76a1d0ff *
 menu color tabmsg	* #ffffffff #00000000 *
 menu color help		37;40 #ffdddd00 #00000000 none
-menu vshift 16
+menu vshift 9 
 menu rows 10
 menu helpmsgrow 15
 # The command line must be at least one line from the bottom.
