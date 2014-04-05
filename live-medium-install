@@ -19,9 +19,8 @@ _URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot"
 _CONFIGTYPE="gnome-desktop"
 
 #_ARCH - amd64 i386-486 i386-686
-_ARCH="amd64"
-
 #_FLAVOUR - set from _ARCH selection and configured as 1 for 486 and 2 for 686
+_ARCH="amd64"
 _FLAVOUR=""
 
 _NONFREE="No, do not include non-free."
