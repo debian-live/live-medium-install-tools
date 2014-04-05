@@ -28,6 +28,10 @@ _NONFREE="No, do not include non-free."
 
 _TARGET="/dev/sda"
 
+# Persistence settings
+_PERSISTENCE="No, do not make persistence."
+_SIZE="250MB"
+
 # Dependencies
 if [ ! -e /sbin/parted ]
 then
@@ -189,6 +193,40 @@ case "${_CONFIGTYPE}" in
 		;;
 esac
 
+cat << EOF
+
+######################################################
+Do you want to use persistence option?
+Please enter: 'Yes, I want persistence.'
+(default: ${_PERSISTENCE})
+
+EOF
+
+# Ask for _PERSISTENCE
+echo -n ": "
+read _READ
+
+_PERSISTENCE=${_READ:-${_PERSISTENCE}}
+
+case "${_PERSISTENCE}" in
+	'Yes, I want persistence.')
+		echo "What size? (default: ${_SIZE})"
+		# Ask for _SIZE
+
+		echo -n ": "
+		read _READ
+		_SIZE=${_READ:-${_SIZE}}
+
+		;;
+
+	'No, do not make persistence.')
+		;;
+
+	*)
+		echo "Invalid persistance selection of ${_PERSISTANCE} , abort."
+		exit 1
+		;;
+esac
 
 # Display warning
 cat << EOF
@@ -261,12 +299,28 @@ echo "Starting parted command to make label and partition..."
 #parted -s -a optimal ${_TARGET} mklabel gpt -- mkpart primary ext4 1 -1
 #parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 3000
 #parted -s -a optimal ${_TARGET} -- mkpart primary ext4 3000 -1
-parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 -1
-
+#parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 -1
 # Example of 10gb and swap.
 #parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 10000
 #parted -s -a optimal ${_TARGET} -- mkpart primary linux-swap 10000 12000
 
+if [ "${_PERSISTENCE}" = "Yes, I want persistence." ]
+then
+	echo "Creating install partition and reserving persistence space on drive."
+	parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 ${_SIZE}+1 -1
+
+	echo "Now adding partition for persistence."
+	parted -s -a optimal ${_TARGET} -- mkpart primary ext4 1 ${_SIZE}
+	mkfs.ext4 -L persistence ${_TARGET}2
+	mkdir /mnt2
+	mount ${_TARGET}2 /mnt2
+	echo "/ union" >> /mnt2/persistence.conf
+	umount /mnt2
+	rmdir /mnt2
+else
+	echo "Creating install partition on drive."
+	parted -s -a optimal ${_TARGET} mklabel msdos -- mkpart primary ext4 1 -1
+fi
 
 # Set the block device to boot.
 echo "Starting parted command to enable boot..."
@@ -344,7 +398,16 @@ label live
 	menu default
 	linux /live/vmlinuz
 	initrd /live/initrd.img
-	append boot=live config vga=normal video=vesa quiet splash
+EOF
+
+if [ "${_PERSISTENCE}" = "Yes, I want persistence." ]
+then
+    echo '\tappend boot=live config vga=normal video=vesa quiet splash persistence' >> /mnt/boot/extlinux/extlinux.conf
+else
+    echo '\tappend boot=live config vga=normal video=vesa quiet splash' >> /mnt/boot/extlinux/extlinux.conf
+fi
+
+cat >> /mnt/boot/extlinux/extlinux.conf << EOF
 
 label live-failsafe
 	menu label Live (failsafe)
