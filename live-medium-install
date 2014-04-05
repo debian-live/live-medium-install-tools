@@ -11,7 +11,7 @@
 set -e
 
 # Defaults
-_VERSION="7.2"
+_VERSION="7.4"
 
 _URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot"
 
