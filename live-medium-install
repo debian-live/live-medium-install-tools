@@ -222,7 +222,7 @@ case "${_PERSISTENCE}" in
 		;;
 
 	*)
-		echo "Invalid persistance selection of ${_PERSISTANCE} , abort."
+		echo "Invalid persistence selection of ${_PERSISTENCE} , abort."
 		exit 1
 		;;
 esac
