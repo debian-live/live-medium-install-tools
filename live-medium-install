@@ -401,9 +401,13 @@ EOF
 
 if [ "${_PERSISTENCE}" = "Yes, I want persistence." ]
 then
-    echo '\tappend boot=live config vga=normal video=vesa quiet splash persistence' >> /mnt/boot/extlinux/extlinux.conf
+	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+	append boot=live config vga=normal video=vesa quiet splash persistence
+EOF
 else
-    echo '\tappend boot=live config vga=normal video=vesa quiet splash' >> /mnt/boot/extlinux/extlinux.conf
+	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+	append boot=live config vga=normal video=vesa quiet splash
+EOF
 fi
 
 cat >> /mnt/boot/extlinux/extlinux.conf << EOF
