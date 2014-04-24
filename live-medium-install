@@ -154,7 +154,7 @@ cat << EOF
 
 ######################################################
 Do you want to use images which include the non-free
-arvhive areas? Please enter 'Yes, include non-free.'
+archive areas? Please enter 'Yes, include non-free.'
 (default: ${_NONFREE})
 
 EOF
