@@ -136,11 +136,13 @@ case "${_ARCH}" in
 
 	'i386-486')
 		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+		_ARCH="i386"
 		_FLAVOUR="1"
 		;;
 
 	'i386-686')
 		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+		_ARCH="i386"
 		_FLAVOUR="2"
 		;;
 
