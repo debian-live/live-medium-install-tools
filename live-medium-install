@@ -35,8 +35,8 @@ _SIZE="250MB"
 if [ ! -e /sbin/parted ]
 then
 	echo "E: /sbin/parted - no such file"
-	echo "E: On Debian based systems, parted can be installed with:"
-	echo "E:   apt-get install parted"
+	echo "I: On Debian based systems, parted can be installed with:"
+	echo "I:   apt-get install parted"
 
 	exit 1
 fi
@@ -44,8 +44,8 @@ fi
 if [ ! -e /usr/bin/extlinux ]
 then
 	echo "E: /usr/bin/extlinux - no such file"
-	echo "E: On Debian based systems, extlinux can be installed with:"
-	echo "E:   apt-get install extlinux"
+	echo "I: On Debian based systems, extlinux can be installed with:"
+	echo "I:   apt-get install extlinux"
 
 	exit 1
 fi
@@ -53,8 +53,8 @@ fi
 if [ ! -e /usr/bin/wget ]
 then
 	echo "E: /usr/bin/wget - no such file"
-	echo "E: On Debian based systems, wget can be installed with:"
-	echo "E:   apt-get install wget"
+	echo "I: On Debian based systems, wget can be installed with:"
+	echo "I:   apt-get install wget"
 
 	exit 1
 fi
@@ -62,8 +62,8 @@ fi
 if [ ! -e /usr/share/syslinux/themes/debian/extlinux/splash.png ]
 then
 	echo "E: /usr/share/syslinux/themes/debian/extlinux/splash.png - no such file"
-	echo "E: On Debian based systems, splash.png image can be installed with:"
-	echo "E:   apt-get install syslinux-themes-debian"
+	echo "I: On Debian based systems, splash.png image can be installed with:"
+	echo "I:   apt-get install syslinux-themes-debian"
 
 	exit 1
 fi
@@ -71,8 +71,8 @@ fi
 if [ ! -e /usr/lib/syslinux/vesamenu.c32 ]
 then
 	echo "E: /usr/lib/syslinux/vesamenu.c32 - no such file"
-	echo "E: On Debian based systems, vesamenu.c32 can be installed with:"
-	echo "E:   apt-get install syslinux-common"
+	echo "I: On Debian based systems, vesamenu.c32 can be installed with:"
+	echo "I:   apt-get install syslinux-common"
 
 	exit 1
 fi
@@ -80,8 +80,8 @@ fi
 if [ ! -e /boot/memtest86+.bin ]
 then
 	echo "E: /boot/memtest86+.bin - no such file"
-	echo "E: On Debian based systems, memtest86+ can be installed with:"
-	echo "E:   apt-get install memtest86+"
+	echo "I: On Debian based systems, memtest86+ can be installed with:"
+	echo "I:   apt-get install memtest86+"
 
 	exit 1
 fi
