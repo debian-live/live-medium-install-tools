@@ -188,7 +188,7 @@ esac
 
 case "${_CONFIGTYPE}" in
 	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.*${_FLAVOUR}"
+		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}"
 		;;
 
 	*)
@@ -363,7 +363,9 @@ mkdir -p /mnt/live
 echo "Downloading webboot files..."
 
 # Rsync the files to the target machine.
-rsync -av --progress ${_URL}/${_FILES} /mnt/live/
+rsync -av --progress ${_URL}/${_FILES}.vmlinuz${_FLAVOUR} /mnt/live/
+rsync -av --progress ${_URL}/${_FILES}.initrd${_FLAVOUR}.img /mnt/live/
+rsync -av --progress ${_URL}/${_FILES}.squashfs /mnt/live/
 
 # Renaming files
 mv /mnt/live/debian-live-*.vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
