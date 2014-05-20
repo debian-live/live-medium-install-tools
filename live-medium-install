@@ -13,7 +13,7 @@ set -e
 # Defaults
 _VERSION="7.4"
 
-_URL="http://live.debian.net/files/stable/images/${_VERSION}/ARCH/webboot"
+_URL="live.debian.net::${_VERSION}/ARCH/webboot"
 
 # Select the default live image config type.
 _CONFIGTYPE="gnome-desktop"
@@ -30,6 +30,9 @@ _TARGET="/dev/sda"
 # Persistence settings
 _PERSISTENCE="No, do not make persistence."
 _SIZE="250MB"
+
+# Custom boot menu
+_BOOTMENU="No, include the default menu."
 
 # Dependencies
 if [ ! -e /sbin/parted ]
@@ -50,11 +53,11 @@ then
 	exit 1
 fi
 
-if [ ! -e /usr/bin/wget ]
+if [ ! -e /usr/bin/rsync ]
 then
-	echo "E: /usr/bin/wget - no such file"
-	echo "I: On Debian based systems, wget can be installed with:"
-	echo "I:   apt-get install wget"
+	echo "E: /usr/bin/rsync - no such file"
+	echo "I: On Debian based systems, rsync can be installed with:"
+	echo "I:   apt-get install rsync"
 
 	exit 1
 fi
@@ -185,7 +188,7 @@ esac
 
 case "${_CONFIGTYPE}" in
 	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.vmlinuz${_FLAVOUR} debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.initrd${_FLAVOUR}.img debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.squashfs"
+		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}.*${_FLAVOUR}"
 		;;
 
 	*)
@@ -228,6 +231,22 @@ case "${_PERSISTENCE}" in
 		exit 1
 		;;
 esac
+
+cat << EOF
+
+######################################################
+Do you have a custom boot folder to rsync?
+Please enter: 'Yes, rsync boot menu.'
+(default: ${_BOOTMENU})
+
+EOF
+
+# Ask for _BOOTMENU
+echo -n ": "
+read _READ
+
+_BOOTMENU=${_READ:-${_BOOTMENU}}
+
 
 # Display warning
 cat << EOF
@@ -342,10 +361,9 @@ mkdir -p /mnt/live
 
 # Download the webboot files from server
 echo "Downloading webboot files..."
-for _FILE in ${_FILES}
-do
-	wget -c ${_URL}/${_FILE} -O /mnt/live/${_FILE}
-done
+
+# Rsync the files to the target machine.
+rsync -av --progress ${_URL}/${_FILES} /mnt/live/
 
 # Renaming files
 mv /mnt/live/debian-live-*.vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
@@ -356,14 +374,22 @@ mv /mnt/live/debian-live-*.squashfs /mnt/live/filesystem.squashfs
 # FIXME: needs update for syslinux 6.0
 dd if=/usr/lib/extlinux/mbr.bin of="${_TARGET}" bs=440 count=1 conv=notrunc
 
-# Configuring bootloader
-mkdir -p /mnt/boot/extlinux
+if [ "${_BOOTMENU}" = "Yes, rsync boot menu." ]
+then
+	# Download the boot and menu files from server
+	echo "Downloading boot and menu files..."
 
-cp /usr/lib/syslinux/vesamenu.c32 /mnt/boot/extlinux/
-cp /usr/share/syslinux/themes/debian/extlinux/splash.png /mnt/boot/extlinux/
-cp /boot/memtest86+.bin /mnt/boot/
+	# Rsync the files to the target machine.
+	rsync -av --progress ${_URL}/boot /mnt/
+else
+	# Configuring bootloader
+	mkdir -p /mnt/boot/extlinux
 
-cat > /mnt/boot/extlinux/extlinux.conf << EOF
+	cp /usr/lib/syslinux/vesamenu.c32 /mnt/boot/extlinux/
+	cp /usr/share/syslinux/themes/debian/extlinux/splash.png /mnt/boot/extlinux/
+	cp /boot/memtest86+.bin /mnt/boot/
+
+	cat > /mnt/boot/extlinux/extlinux.conf << EOF
 default live
 prompt 0
 timeout 50
@@ -401,18 +427,18 @@ label live
 	initrd /live/initrd.img
 EOF
 
-if [ "${_PERSISTENCE}" = "Yes, I want persistence." ]
-then
-	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+	if [ "${_PERSISTENCE}" = "Yes, I want persistence." ]
+	then
+		cat >> /mnt/boot/extlinux/extlinux.conf << EOF
 	append boot=live config vga=normal video=vesa quiet splash persistence
 EOF
-else
-	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+	else
+		cat >> /mnt/boot/extlinux/extlinux.conf << EOF
 	append boot=live config vga=normal video=vesa quiet splash
 EOF
-fi
+	fi
 
-cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
 
 label live-failsafe
 	menu label Live (failsafe)
@@ -424,6 +450,7 @@ label memtest
 	menu label Memory Diagnostic Tool (memtest86+)
 	linux /boot/memtest86+.bin
 EOF
+fi
 
 # Writing bootloader
 extlinux --install /mnt/boot/extlinux
