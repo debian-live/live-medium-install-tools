@@ -15,6 +15,9 @@ _VERSION="7.4"
 
 _URL="live.debian.net::${_VERSION}/ARCH/webboot"
 
+# Select to media to install from rsync or booted Debian Live image.
+_RSYNCINSTALL="Network rsync server."
+
 # Select the default live image config type.
 _CONFIGTYPE="gnome-desktop"
 
@@ -95,6 +98,32 @@ cat << EOF
 ######################################################
 
 ######################################################
+By default the script will attempt to install from a
+network rsync server. If you would like to attempt to
+install from the Debian Live media you have booted,
+please enter the text you would want in the boot menu
+for the version of the install.
+
+Select the media source to attempt the firmware install.
+(default: ${_RSYNCINSTALL})
+
+ Network rsync server.
+ Debian Live media menu text example.
+
+EOF
+
+# Ask for _RSYNCINSTALL
+echo -n ": "
+read _READ
+
+_RSYNCINSTALL=${_READ:-${_RSYNCINSTALL}}
+
+# This if statement is a sentry to guard prompts needed for rsync install.
+if [ "${_RSYNCINSTALL}" = "Network rsync server." ]
+then
+	cat << EOF
+
+######################################################
 Please enter the image config type to download.
 (default: ${_CONFIGTYPE})
 
@@ -107,13 +136,13 @@ Please enter the image config type to download.
 
 EOF
 
-# Ask for _CONFIGTYPE
-echo -n ": "
-read _READ
+	# Ask for _CONFIGTYPE
+	echo -n ": "
+	read _READ
 
-_CONFIGTYPE=${_READ:-${_CONFIGTYPE}}
+	_CONFIGTYPE=${_READ:-${_CONFIGTYPE}}
 
-cat << EOF
+	cat << EOF
 
 ######################################################
 Please enter the architecture you would like to install?
@@ -125,37 +154,37 @@ Please enter the architecture you would like to install?
 
 EOF
 
-# Ask for _ARCH
-echo -n ": "
-read _READ
+	# Ask for _ARCH
+	echo -n ": "
+	read _READ
 
-_ARCH=${_READ:-${_ARCH}}
+	_ARCH=${_READ:-${_ARCH}}
 
-# Configure the _URL architecture and set _FLAVOUR on i386
-case "${_ARCH}" in
-	'amd64')
-		_URL=$(echo ${_URL} | sed s@ARCH@amd64@)
-		;;
+	# Configure the _URL architecture and set _FLAVOUR on i386
+	case "${_ARCH}" in
+		'amd64')
+			_URL=$(echo ${_URL} | sed s@ARCH@amd64@)
+			;;
 
-	'i386-486')
-		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
-		_ARCH="i386"
-		_FLAVOUR="1"
-		;;
+		'i386-486')
+			_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+			_ARCH="i386"
+			_FLAVOUR="1"
+			;;
 
-	'i386-686')
-		_URL=$(echo ${_URL} | sed s@ARCH@i386@)
-		_ARCH="i386"
-		_FLAVOUR="2"
-		;;
+		'i386-686')
+			_URL=$(echo ${_URL} | sed s@ARCH@i386@)
+			_ARCH="i386"
+			_FLAVOUR="2"
+			;;
 
-	*)
-		echo "Invalid architecture selection of ${_ARCH}, aborting."
-		exit 1
-		;;
-esac
+		*)
+			echo "Invalid architecture selection of ${_ARCH}, aborting."
+			exit 1
+			;;
+	esac
 
-cat << EOF
+	cat << EOF
 
 ######################################################
 Do you want to use images which include the non-free
@@ -164,40 +193,40 @@ archive areas? Please enter 'Yes, include non-free.'
 
 EOF
 
-# Ask for _NONFREE
-echo -n ": "
-read _READ
+	# Ask for _NONFREE
+	echo -n ": "
+	read _READ
 
-_NONFREE=${_READ:-${_NONFREE}}
+	_NONFREE=${_READ:-${_NONFREE}}
 
-# Configure _URL and _CONFIGTYPE to include non-free
-case "${_NONFREE}" in
-	'No, do not include non-free.')
-		;;
+	# Configure _URL and _CONFIGTYPE to include non-free
+	case "${_NONFREE}" in
+		'No, do not include non-free.')
+			;;
 
-	'Yes, include non-free.')
-		_URL=$(echo ${_URL} | sed s@${_VERSION}@${_VERSION}+nonfree@)
-		_CONFIGTYPE="${_CONFIGTYPE}+nonfree"
-		;;
+		'Yes, include non-free.')
+			_URL=$(echo ${_URL} | sed s@${_VERSION}@${_VERSION}+nonfree@)
+			_CONFIGTYPE="${_CONFIGTYPE}+nonfree"
+			;;
 
-	*)
-		echo "Invalid non-free selection of ${_NONFREE}, aborting."
-		exit 1
-		;;
-esac
+		*)
+			echo "Invalid non-free selection of ${_NONFREE}, aborting."
+			exit 1
+			;;
+	esac
 
-case "${_CONFIGTYPE}" in
-	gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-		_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}"
-		;;
+	case "${_CONFIGTYPE}" in
+		gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
+			_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}"
+			;;
 
-	*)
-		echo "Invalid config type selection of ${_CONFIGTYPE}, aborting."
-		exit 1
-		;;
-esac
+		*)
+			echo "Invalid config type selection of ${_CONFIGTYPE}, aborting."
+			exit 1
+			;;
+	esac
 
-cat << EOF
+	cat << EOF
 
 ######################################################
 Do you have a custom boot folder to rsync?
@@ -206,11 +235,28 @@ Please enter: 'Yes, rsync boot menu.'
 
 EOF
 
-# Ask for _BOOTMENU
-echo -n ": "
-read _READ
+	# Ask for _BOOTMENU
+	echo -n ": "
+	read _READ
 
-_BOOTMENU=${_READ:-${_BOOTMENU}}
+	_BOOTMENU=${_READ:-${_BOOTMENU}}
+
+	cat << EOF
+
+######################################################
+Please enter URL to download the ${_FILES} from
+(default: ${_URL})
+
+EOF
+
+	# Ask for URL
+	echo -n ": "
+	read _READ
+
+	_URL="${_READ:-${_URL}}"
+
+# This is the fi for the if statement sentry to guard prompts needed for rsync install.
+fi
 
 cat << EOF
 
@@ -248,23 +294,12 @@ case "${_PERSISTENCE}" in
 esac
 
 # Display warning
+# Display partitions
 cat << EOF
+
 ######################################################
 WARNING: This will erase all data on the target device
 ######################################################
-
-Please enter URL to download the ${_FILES} from
-(default: ${_URL})
-EOF
-
-# Ask for URL
-echo -n ": "
-read _READ
-
-_URL="${_READ:-${_URL}}"
-
-# Display partitions
-cat << EOF
 
 -------------------------------------------------------------------------------
 $(blkid | sort)
@@ -358,18 +393,27 @@ mount ${_TARGET}1 /mnt
 echo "Creating /live dir..."
 mkdir -p /mnt/live
 
-# Download the webboot files from server
-echo "Downloading webboot files..."
+if [ "${_RSYNCINSTALL}" = "Network rsync server." ]
+then
+	# Download the webboot files from server
+	echo "Downloading webboot files..."
 
-# Rsync the files to the target machine.
-rsync -av --progress ${_URL}/${_FILES}.vmlinuz${_FLAVOUR} /mnt/live/
-rsync -av --progress ${_URL}/${_FILES}.initrd${_FLAVOUR}.img /mnt/live/
-rsync -av --progress ${_URL}/${_FILES}.squashfs /mnt/live/
+	# Rsync the files to the target machine.
+	rsync -av --progress ${_URL}/${_FILES}.vmlinuz${_FLAVOUR} /mnt/live/
+	rsync -av --progress ${_URL}/${_FILES}.initrd${_FLAVOUR}.img /mnt/live/
+	rsync -av --progress ${_URL}/${_FILES}.squashfs /mnt/live/
 
-# Renaming files
-mv /mnt/live/debian-live-*.vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
-mv /mnt/live/debian-live-*.initrd${_FLAVOUR}.img /mnt/live/initrd.img
-mv /mnt/live/debian-live-*.squashfs /mnt/live/filesystem.squashfs
+	# Renaming files
+	mv /mnt/live/debian-live-*.vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
+	mv /mnt/live/debian-live-*.initrd${_FLAVOUR}.img /mnt/live/initrd.img
+	mv /mnt/live/debian-live-*.squashfs /mnt/live/filesystem.squashfs
+else
+	# Copy files from live media
+	echo "Copying files..."
+
+	# Rsync the files to the target machine.
+	rsync -av --progress /lib/live/mount/medium/live/ /mnt/live/
+fi
 
 # Writing mbr
 # FIXME: needs update for syslinux 6.0
@@ -397,7 +441,21 @@ timeout 50
 
 default vesamenu.c32
 menu background splash.png
+EOF
+
+	if [ "${_RSYNCINSTALL}" = "Network rsync server." ]
+	then
+		cat >> /mnt/boot/extlinux/extlinux.conf << EOF
 menu title Debian Linux Firmware Version ${_VERSION}
+EOF
+	else
+		cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+menu title Debian Linux Firmware Version ${_RSYNCINSTALL}
+EOF
+	fi
+
+	cat >> /mnt/boot/extlinux/extlinux.conf << EOF
+
 menu separator
 menu separator
 menu separator
