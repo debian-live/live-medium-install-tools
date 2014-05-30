@@ -38,6 +38,13 @@ _PERSISTENCE="No, do not make persistence."
 _SIZE="250MB"
 
 # Dependencies
+if [ "$(id -u)" -ne "0" ]
+then
+	echo "E: You need to be the root user to run this script.";
+
+	exit 1
+fi
+
 if [ ! -e /sbin/parted ]
 then
 	echo "E: /sbin/parted - no such file"
