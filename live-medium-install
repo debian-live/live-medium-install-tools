@@ -11,9 +11,10 @@
 set -e
 
 # Defaults
-_VERSION="7.5"
+_VERSION="7.6"
+_RELEASE=".0"
 
-_URL="live.debian.net::${_VERSION}/ARCH/webboot"
+_URL="live.debian.net::${_VERSION}/ARCH/web"
 
 # Select to media to install from rsync or booted Debian Live image.
 _RSYNCINSTALL="Network rsync server."
@@ -224,7 +225,7 @@ EOF
 
 	case "${_CONFIGTYPE}" in
 		gnome-desktop|kde-desktop|lxde-desktop|xfce-desktop|standard|rescue|gnome-desktop+nonfree|kde-desktop+nonfree|lxde-desktop+nonfree|xfce-desktop+nonfree|standard+nonfree|rescue+nonfree)
-			_FILES="debian-live-${_VERSION}-${_ARCH}-${_CONFIGTYPE}"
+			_FILES="debian-live-${_VERSION}${_RELEASE}-${_ARCH}-${_CONFIGTYPE}"
 			;;
 
 		*)
@@ -418,8 +419,21 @@ else
 	# Copy files from live media
 	echo "Copying files..."
 
+	# Determine which flavor from uname and rsync appropriate files.
 	# Rsync the files to the target machine.
-	rsync -av --progress /lib/live/mount/medium/live/ /mnt/live/
+	if $(echo $(uname -r) | grep -qs "486")
+	then
+		_FLAVOUR="1"
+	elif $(echo $(uname -r) | grep -qs "686")
+	then
+		_FLAVOUR="2"
+	else
+		# amd64 live media.
+		_FLAVOUR=""
+	fi
+	rsync -av --progress /lib/live/mount/medium/live/vmlinuz${_FLAVOUR} /mnt/live/vmlinuz
+	rsync -av --progress /lib/live/mount/medium/live/initrd${_FLAVOUR}.img /mnt/live/initrd.img
+	rsync -av --progress /lib/live/mount/medium/live/filesystem.squashfs /mnt/live/filesystem.squashfs
 fi
 
 # Writing mbr
